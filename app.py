@@ -3,7 +3,7 @@ import requests
 from flask import Flask, request, jsonify, render_template
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(".env.local")
 
 app = Flask(__name__)
 
