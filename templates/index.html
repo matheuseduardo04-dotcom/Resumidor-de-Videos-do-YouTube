@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Matheus Dev IA</title>
+  <meta name="description" content="Converse com o Matheus Dev IA — assistente inteligente powered by Claude da Anthropic." />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+<div class="app" id="app">
+  <!-- Overlay mobile -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="brand">
+        <div class="brand-icon">✦</div>
+        <div class="brand-name">
+          Matheus Dev IA
+          <span class="brand-tag">Powered by Claude</span>
+        </div>
+      </div>
+      <button class="new-chat-btn" id="newChatBtn">+ Nova conversa</button>
+    </div>
+
+    <div class="sidebar-body">
+      <p class="sidebar-section-label">Sugestões</p>
+      <button class="suggestion-btn" data-text="Me explique como funciona uma API REST com exemplos práticos.">
+        <strong style="display:block;margin-bottom:2px;color:var(--accent);font-size:0.72rem;">Programação</strong>
+        Me explique como funciona uma API REST com exemplos práticos.
+      </button>
+      <button class="suggestion-btn" data-text="Crie um slogan impactante para uma startup de tecnologia.">
+        <strong style="display:block;margin-bottom:2px;color:var(--accent);font-size:0.72rem;">Criatividade</strong>
+        Crie um slogan impactante para uma startup de tecnologia.
+      </button>
+      <button class="suggestion-btn" data-text="Quais são as melhores técnicas para melhorar o foco no trabalho?">
+        <strong style="display:block;margin-bottom:2px;color:var(--accent);font-size:0.72rem;">Produtividade</strong>
+        Quais são as melhores técnicas para melhorar o foco no trabalho?
+      </button>
+      <button class="suggestion-btn" data-text="Quais são as tendências de IA para 2025 e 2026?">
+        <strong style="display:block;margin-bottom:2px;color:var(--accent);font-size:0.72rem;">Análise</strong>
+        Quais são as tendências de IA para 2025 e 2026?
+      </button>
+    </div>
+
+    <div class="sidebar-footer">
+      <span class="footer-info">Matheus Dev IA<br />v1.0 · Claude</span>
+      <button class="icon-btn" id="themeBtn" title="Alternar tema">☀️</button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="chat-main">
+    <!-- Topbar mobile -->
+    <div class="mobile-topbar">
+      <button class="icon-btn" id="menuBtn" title="Menu">☰</button>
+      <div class="brand-icon" style="width:28px;height:28px;border-radius:8px;font-size:0.8rem;background:var(--accent);color:#fff;display:grid;place-items:center;">✦</div>
+      <span class="brand-name" style="flex:1;font-size:0.88rem;">Matheus Dev IA</span>
+      <button class="icon-btn" id="themeBtn2" title="Tema">☀️</button>
+    </div>
+
+    <!-- Messages -->
+    <div class="messages-area" id="messagesArea">
+      <div class="messages-inner" id="messagesInner">
+        <!-- Welcome screen -->
+        <div class="welcome" id="welcome">
+          <div class="welcome-icon">✦</div>
+          <h1>Matheus Dev IA</h1>
+          <p>Seu assistente inteligente powered by Claude. Pergunte qualquer coisa e receba respostas rápidas e úteis.</p>
+          <div class="welcome-suggestions">
+            <button class="welcome-card" data-text="Me explique como funciona uma API REST com exemplos práticos.">
+              <strong>Programação</strong>
+              Me explique como funciona uma API REST com exemplos práticos.
+            </button>
+            <button class="welcome-card" data-text="Crie um slogan impactante para uma startup de tecnologia.">
+              <strong>Criatividade</strong>
+              Crie um slogan impactante para uma startup de tecnologia.
+            </button>
+            <button class="welcome-card" data-text="Quais são as melhores técnicas para melhorar o foco no trabalho?">
+              <strong>Produtividade</strong>
+              Quais são as melhores técnicas para melhorar o foco no trabalho?
+            </button>
+            <button class="welcome-card" data-text="Quais são as tendências de IA para 2025 e 2026?">
+              <strong>Análise</strong>
+              Quais são as tendências de IA para 2025 e 2026?
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Composer -->
+    <div class="composer-wrap">
+      <form class="composer" id="chatForm">
+        <textarea
+          id="chatInput"
+          placeholder="Mensagem para o Matheus Dev IA..."
+          rows="1"
+        ></textarea>
+        <div class="composer-actions">
+          <span class="composer-hint" id="composerHint">Enter para enviar · {{ daily_limit }} mensagens restantes hoje</span>
+          <button class="send-btn" id="sendBtn" type="submit" disabled>Enviar ↑</button>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+
+<script>
+  const DAILY_LIMIT = {{ daily_limit }};
+
+  // ── Usage ──
+  function getUsage() {
+    try {
+      const raw = localStorage.getItem("mdai-usage");
+      const today = new Date().toISOString().slice(0, 10);
+      if (!raw) return { date: today, count: 0 };
+      const parsed = JSON.parse(raw);
+      if (parsed.date !== today) return { date: today, count: 0 };
+      return parsed;
+    } catch {
+      return { date: new Date().toISOString().slice(0, 10), count: 0 };
+    }
+  }
+
+  function saveUsage(usage) {
+    localStorage.setItem("mdai-usage", JSON.stringify(usage));
+  }
+
+  // ── State ──
+  let messages = [];
+  let loading = false;
+  let usage = getUsage();
+
+  // ── Elements ──
+  const app = document.getElementById("app");
+  const sidebar = document.getElementById("sidebar");
+  const overlay = document.getElementById("sidebarOverlay");
+  const newChatBtn = document.getElementById("newChatBtn");
+  const menuBtn = document.getElementById("menuBtn");
+  const themeBtn = document.getElementById("themeBtn");
+  const themeBtn2 = document.getElementById("themeBtn2");
+  const chatForm = document.getElementById("chatForm");
+  const chatInput = document.getElementById("chatInput");
+  const sendBtn = document.getElementById("sendBtn");
+  const messagesInner = document.getElementById("messagesInner");
+  const welcome = document.getElementById("welcome");
+  const composerHint = document.getElementById("composerHint");
+  const messagesArea = document.getElementById("messagesArea");
+
+  // ── Theme ──
+  function applyTheme(theme) {
+    document.documentElement.dataset.theme = theme;
+    const icon = theme === "dark" ? "☀️" : "🌙";
+    themeBtn.textContent = icon;
+    themeBtn2.textContent = icon;
+    localStorage.setItem("mdai-theme", theme);
+  }
+
+  function toggleTheme() {
+    const current = document.documentElement.dataset.theme || "dark";
+    applyTheme(current === "dark" ? "light" : "dark");
+  }
+
+  const savedTheme = localStorage.getItem("mdai-theme") || "dark";
+  applyTheme(savedTheme);
+
+  themeBtn.addEventListener("click", toggleTheme);
+  themeBtn2.addEventListener("click", toggleTheme);
+
+  // ── Sidebar ──
+  menuBtn.addEventListener("click", () => {
+    sidebar.classList.add("open");
+    overlay.classList.add("visible");
+  });
+
+  overlay.addEventListener("click", () => {
+    sidebar.classList.remove("open");
+    overlay.classList.remove("visible");
+  });
+
+  newChatBtn.addEventListener("click", () => {
+    messages = [];
+    renderMessages();
+    chatInput.value = "";
+    updateSendBtn();
+    sidebar.classList.remove("open");
+    overlay.classList.remove("visible");
+  });
+
+  // ── Suggestions ──
+  document.querySelectorAll("[data-text]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      chatInput.value = btn.dataset.text;
+      autoResize();
+      updateSendBtn();
+      chatInput.focus();
+      sidebar.classList.remove("open");
+      overlay.classList.remove("visible");
+    });
+  });
+
+  // ── Textarea ──
+  function autoResize() {
+    chatInput.style.height = "auto";
+    chatInput.style.height = Math.min(chatInput.scrollHeight, 200) + "px";
+  }
+
+  chatInput.addEventListener("input", () => {
+    autoResize();
+    updateSendBtn();
+  });
+
+  chatInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      if (!sendBtn.disabled) sendMessage();
+    }
+  });
+
+  chatForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    if (!sendBtn.disabled) sendMessage();
+  });
+
+  // ── Hint ──
+  function updateHint() {
+    const remaining = DAILY_LIMIT - usage.count;
+    if (remaining <= 0) {
+      composerHint.textContent = "⛔ Limite diário atingido — volte amanhã";
+    } else {
+      composerHint.textContent = `Enter para enviar · ${remaining} mensagens restantes hoje`;
+    }
+  }
+
+  function updateSendBtn() {
+    sendBtn.disabled = !chatInput.value.trim() || loading || usage.count >= DAILY_LIMIT;
+  }
+
+  // ── Render ──
+  function escapeHtml(text) {
+    return text
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function renderMessages() {
+    // Remove all message groups (keep welcome)
+    document.querySelectorAll(".msg-group").forEach((el) => el.remove());
+
+    if (messages.length === 0) {
+      welcome.style.display = "";
+      return;
+    }
+
+    welcome.style.display = "none";
+
+    messages.forEach((msg) => {
+      appendMessageToDOM(msg);
+    });
+
+    scrollToBottom();
+  }
+
+  function appendMessageToDOM(msg) {
+    const group = document.createElement("div");
+    group.className = "msg-group";
+
+    const row = document.createElement("div");
+    row.className = `msg-row${msg.role === "user" ? " user" : ""}`;
+
+    const avatar = document.createElement("div");
+    avatar.className = `avatar ${msg.role === "user" ? "user" : "ai"}`;
+    avatar.textContent = msg.role === "user" ? "U" : "✦";
+
+    const bubble = document.createElement("div");
+    bubble.className = `bubble ${msg.role === "user" ? "user" : "ai"}${msg.isError ? " error" : ""}`;
+    bubble.textContent = msg.content;
+
+    row.appendChild(avatar);
+    row.appendChild(bubble);
+    group.appendChild(row);
+    messagesInner.appendChild(group);
+  }
+
+  function showThinking() {
+    const group = document.createElement("div");
+    group.className = "msg-group";
+    group.id = "thinkingGroup";
+
+    const row = document.createElement("div");
+    row.className = "msg-row";
+
+    const avatar = document.createElement("div");
+    avatar.className = "avatar ai";
+    avatar.textContent = "✦";
+
+    const bubble = document.createElement("div");
+    bubble.className = "bubble ai";
+    bubble.innerHTML = '<div class="thinking"><span></span><span></span><span></span></div>';
+
+    row.appendChild(avatar);
+    row.appendChild(bubble);
+    group.appendChild(row);
+    messagesInner.appendChild(group);
+    scrollToBottom();
+  }
+
+  function removeThinking() {
+    const el = document.getElementById("thinkingGroup");
+    if (el) el.remove();
+  }
+
+  function scrollToBottom() {
+    messagesArea.scrollTop = messagesArea.scrollHeight;
+  }
+
+  // ── Send ──
+  async function sendMessage() {
+    const trimmed = chatInput.value.trim();
+    if (!trimmed || loading) return;
+
+    const currentUsage = getUsage();
+    if (currentUsage.count >= DAILY_LIMIT) {
+      messages.push({
+        role: "assistant",
+        content: `Você atingiu o limite de ${DAILY_LIMIT} mensagens por dia. Volte amanhã para continuar conversando!`,
+        isError: true,
+      });
+      renderMessages();
+      return;
+    }
+
+    const userMsg = { role: "user", content: trimmed };
+    messages.push(userMsg);
+
+    welcome.style.display = "none";
+    appendMessageToDOM(userMsg);
+
+    chatInput.value = "";
+    chatInput.style.height = "auto";
+    loading = true;
+    updateSendBtn();
+
+    usage = { date: currentUsage.date, count: currentUsage.count + 1 };
+    saveUsage(usage);
+    updateHint();
+
+    showThinking();
+
+    try {
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages }),
+      });
+
+      const data = await res.json();
+      removeThinking();
+
+      const aiMsg = {
+        role: "assistant",
+        content: data.error || data.output || "Sem resposta.",
+        isError: !res.ok || !!data.error,
+      };
+
+      messages.push(aiMsg);
+      appendMessageToDOM(aiMsg);
+      scrollToBottom();
+    } catch {
+      removeThinking();
+      const errMsg = { role: "assistant", content: "Falha na conexão. Verifique sua internet e tente novamente.", isError: true };
+      messages.push(errMsg);
+      appendMessageToDOM(errMsg);
+      scrollToBottom();
+    } finally {
+      loading = false;
+      updateSendBtn();
+    }
+  }
+
+  // ── Init ──
+  updateHint();
+  updateSendBtn();
+</script>
+</body>
+</html>
