@@ -16,7 +16,9 @@
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <div class="brand">
-        <div class="brand-icon">✦</div>
+        <div class="brand-icon">
+          <img src="/static/icon.svg" alt="Ícone" style="width:34px;height:34px;border-radius:9px;display:block;object-fit:cover;" />
+        </div>
         <div class="brand-name">
           Matheus Dev IA
           <span class="brand-tag">Powered by Claude</span>
@@ -28,19 +30,19 @@
     <div class="sidebar-body">
       <p class="sidebar-section-label">Sugestões</p>
       <button class="suggestion-btn" data-text="Me explique como funciona uma API REST com exemplos práticos.">
-        <strong style="display:block;margin-bottom:2px;color:var(--accent);font-size:0.72rem;">Programação</strong>
+        <strong style="display:block;margin-bottom:2px;color:var(--accent);font-size:0.7rem;">Programação</strong>
         Me explique como funciona uma API REST com exemplos práticos.
       </button>
       <button class="suggestion-btn" data-text="Crie um slogan impactante para uma startup de tecnologia.">
-        <strong style="display:block;margin-bottom:2px;color:var(--accent);font-size:0.72rem;">Criatividade</strong>
+        <strong style="display:block;margin-bottom:2px;color:var(--accent);font-size:0.7rem;">Criatividade</strong>
         Crie um slogan impactante para uma startup de tecnologia.
       </button>
       <button class="suggestion-btn" data-text="Quais são as melhores técnicas para melhorar o foco no trabalho?">
-        <strong style="display:block;margin-bottom:2px;color:var(--accent);font-size:0.72rem;">Produtividade</strong>
+        <strong style="display:block;margin-bottom:2px;color:var(--accent);font-size:0.7rem;">Produtividade</strong>
         Quais são as melhores técnicas para melhorar o foco no trabalho?
       </button>
       <button class="suggestion-btn" data-text="Quais são as tendências de IA para 2025 e 2026?">
-        <strong style="display:block;margin-bottom:2px;color:var(--accent);font-size:0.72rem;">Análise</strong>
+        <strong style="display:block;margin-bottom:2px;color:var(--accent);font-size:0.7rem;">Análise</strong>
         Quais são as tendências de IA para 2025 e 2026?
       </button>
     </div>
@@ -56,36 +58,24 @@
     <!-- Topbar mobile -->
     <div class="mobile-topbar">
       <button class="icon-btn" id="menuBtn" title="Menu">☰</button>
-      <div class="brand-icon" style="width:28px;height:28px;border-radius:8px;font-size:0.8rem;background:var(--accent);color:#fff;display:grid;place-items:center;">✦</div>
-      <span class="brand-name" style="flex:1;font-size:0.88rem;">Matheus Dev IA</span>
+      <span class="topbar-title">Matheus Dev IA</span>
       <button class="icon-btn" id="themeBtn2" title="Tema">☀️</button>
     </div>
 
     <!-- Messages -->
     <div class="messages-area" id="messagesArea">
       <div class="messages-inner" id="messagesInner">
-        <!-- Welcome screen -->
+        <!-- Welcome -->
         <div class="welcome" id="welcome">
-          <div class="welcome-icon">✦</div>
-          <h1>Matheus Dev IA</h1>
-          <p>Seu assistente inteligente powered by Claude. Pergunte qualquer coisa e receba respostas rápidas e úteis.</p>
-          <div class="welcome-suggestions">
-            <button class="welcome-card" data-text="Me explique como funciona uma API REST com exemplos práticos.">
-              <strong>Programação</strong>
-              Me explique como funciona uma API REST com exemplos práticos.
-            </button>
-            <button class="welcome-card" data-text="Crie um slogan impactante para uma startup de tecnologia.">
-              <strong>Criatividade</strong>
-              Crie um slogan impactante para uma startup de tecnologia.
-            </button>
-            <button class="welcome-card" data-text="Quais são as melhores técnicas para melhorar o foco no trabalho?">
-              <strong>Produtividade</strong>
-              Quais são as melhores técnicas para melhorar o foco no trabalho?
-            </button>
-            <button class="welcome-card" data-text="Quais são as tendências de IA para 2025 e 2026?">
-              <strong>Análise</strong>
-              Quais são as tendências de IA para 2025 e 2026?
-            </button>
+          <div class="welcome-logo">
+            <img src="/static/icon.svg" alt="Ícone" width="56" height="56" style="border-radius:16px;display:block;" />
+          </div>
+          <h1>Olá, no que posso ajudar?</h1>
+          <div class="welcome-chips">
+            <button class="chip-btn" data-text="Me explique como funciona uma API REST com exemplos práticos.">Programação</button>
+            <button class="chip-btn" data-text="Crie um slogan impactante para uma startup de tecnologia.">Criatividade</button>
+            <button class="chip-btn" data-text="Quais são as melhores técnicas para melhorar o foco no trabalho?">Produtividade</button>
+            <button class="chip-btn" data-text="Quais são as tendências de IA para 2025 e 2026?">Análise</button>
           </div>
         </div>
       </div>
@@ -93,23 +83,41 @@
 
     <!-- Composer -->
     <div class="composer-wrap">
+      <!-- Preview da imagem selecionada -->
+      <div class="image-preview-wrap" id="imagePreviewWrap">
+        <div class="image-preview-inner">
+          <img id="imagePreviewThumb" src="" alt="preview" />
+          <button type="button" class="remove-image-btn" id="removeImageBtn" title="Remover">×</button>
+        </div>
+      </div>
+
       <form class="composer" id="chatForm">
+        <input type="file" id="imageInput" accept="image/png,image/jpeg,image/webp,image/gif" style="display:none" />
+        <button type="button" class="attach-btn" id="attachBtn" title="Enviar imagem">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="3"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21 15 16 10 5 21"/>
+          </svg>
+        </button>
         <textarea
           id="chatInput"
-          placeholder="Mensagem para o Matheus Dev IA..."
+          placeholder="Pergunte qualquer coisa..."
           rows="1"
         ></textarea>
-        <div class="composer-actions">
-          <span class="composer-hint" id="composerHint">Enter para enviar · {{ daily_limit }} mensagens restantes hoje</span>
-          <button class="send-btn" id="sendBtn" type="submit" disabled>Enviar ↑</button>
+        <div class="composer-right">
+          <button class="send-btn" id="sendBtn" type="submit" disabled title="Enviar">↑</button>
         </div>
       </form>
+      <div class="composer-hint-wrap">
+        <span class="composer-hint" id="composerHint"></span>
+      </div>
     </div>
   </main>
 </div>
 
 <script>
-  const DAILY_LIMIT = {{ daily_limit }};
+  const DAILY_LIMIT = parseInt("{{ daily_limit }}");
 
   // ── Usage ──
   function getUsage() {
@@ -125,9 +133,7 @@
     }
   }
 
-  function saveUsage(usage) {
-    localStorage.setItem("mdai-usage", JSON.stringify(usage));
-  }
+  function saveUsage(u) { localStorage.setItem("mdai-usage", JSON.stringify(u)); }
 
   // ── State ──
   let messages = [];
@@ -135,7 +141,6 @@
   let usage = getUsage();
 
   // ── Elements ──
-  const app = document.getElementById("app");
   const sidebar = document.getElementById("sidebar");
   const overlay = document.getElementById("sidebarOverlay");
   const newChatBtn = document.getElementById("newChatBtn");
@@ -160,13 +165,11 @@
   }
 
   function toggleTheme() {
-    const current = document.documentElement.dataset.theme || "dark";
-    applyTheme(current === "dark" ? "light" : "dark");
+    const cur = document.documentElement.dataset.theme || "dark";
+    applyTheme(cur === "dark" ? "light" : "dark");
   }
 
-  const savedTheme = localStorage.getItem("mdai-theme") || "dark";
-  applyTheme(savedTheme);
-
+  applyTheme(localStorage.getItem("mdai-theme") || "dark");
   themeBtn.addEventListener("click", toggleTheme);
   themeBtn2.addEventListener("click", toggleTheme);
 
@@ -176,18 +179,20 @@
     overlay.classList.add("visible");
   });
 
-  overlay.addEventListener("click", () => {
+  function closeSidebar() {
     sidebar.classList.remove("open");
     overlay.classList.remove("visible");
-  });
+  }
+
+  overlay.addEventListener("click", closeSidebar);
 
   newChatBtn.addEventListener("click", () => {
     messages = [];
     renderMessages();
     chatInput.value = "";
+    autoResize();
     updateSendBtn();
-    sidebar.classList.remove("open");
-    overlay.classList.remove("visible");
+    closeSidebar();
   });
 
   // ── Suggestions ──
@@ -197,22 +202,17 @@
       autoResize();
       updateSendBtn();
       chatInput.focus();
-      sidebar.classList.remove("open");
-      overlay.classList.remove("visible");
+      closeSidebar();
     });
   });
 
   // ── Textarea ──
   function autoResize() {
     chatInput.style.height = "auto";
-    chatInput.style.height = Math.min(chatInput.scrollHeight, 200) + "px";
+    chatInput.style.height = Math.min(chatInput.scrollHeight, 160) + "px";
   }
 
-  chatInput.addEventListener("input", () => {
-    autoResize();
-    updateSendBtn();
-  });
-
+  chatInput.addEventListener("input", () => { autoResize(); updateSendBtn(); });
   chatInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -228,43 +228,26 @@
   // ── Hint ──
   function updateHint() {
     const remaining = DAILY_LIMIT - usage.count;
-    if (remaining <= 0) {
-      composerHint.textContent = "⛔ Limite diário atingido — volte amanhã";
-    } else {
-      composerHint.textContent = `Enter para enviar · ${remaining} mensagens restantes hoje`;
-    }
+    composerHint.textContent = remaining <= 0
+      ? "Limite diário atingido — volte amanhã"
+      : `${remaining} mensagens restantes hoje`;
   }
 
   function updateSendBtn() {
-    sendBtn.disabled = !chatInput.value.trim() || loading || usage.count >= DAILY_LIMIT;
+    const hasContent = chatInput.value.trim() || pendingImage;
+    sendBtn.disabled = !hasContent || loading || usage.count >= DAILY_LIMIT;
   }
 
   // ── Render ──
-  function escapeHtml(text) {
-    return text
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;");
-  }
-
   function renderMessages() {
-    // Remove all message groups (keep welcome)
     document.querySelectorAll(".msg-group").forEach((el) => el.remove());
-
-    if (messages.length === 0) {
-      welcome.style.display = "";
-      return;
-    }
-
+    if (messages.length === 0) { welcome.style.display = ""; return; }
     welcome.style.display = "none";
-
-    messages.forEach((msg) => {
-      appendMessageToDOM(msg);
-    });
-
+    messages.forEach(appendMessageToDOM);
     scrollToBottom();
   }
+
+  const CLAUDE_AVATAR = `<img src="/static/icon.svg" alt="IA" width="30" height="30" style="border-radius:50%;display:block;object-fit:cover;" />`;
 
   function appendMessageToDOM(msg) {
     const group = document.createElement("div");
@@ -273,15 +256,31 @@
     const row = document.createElement("div");
     row.className = `msg-row${msg.role === "user" ? " user" : ""}`;
 
-    const avatar = document.createElement("div");
-    avatar.className = `avatar ${msg.role === "user" ? "user" : "ai"}`;
-    avatar.textContent = msg.role === "user" ? "U" : "✦";
+    if (msg.role !== "user") {
+      const avatar = document.createElement("div");
+      avatar.className = "avatar ai";
+      avatar.innerHTML = CLAUDE_AVATAR;
+      row.appendChild(avatar);
+    }
 
     const bubble = document.createElement("div");
     bubble.className = `bubble ${msg.role === "user" ? "user" : "ai"}${msg.isError ? " error" : ""}`;
-    bubble.textContent = msg.content;
 
-    row.appendChild(avatar);
+    if (msg.displayImage) {
+      const img = document.createElement("img");
+      img.src = msg.displayImage;
+      img.className = "chat-image";
+      img.alt = "imagem enviada";
+      bubble.appendChild(img);
+    }
+
+    if (msg.displayText || typeof msg.content === "string") {
+      const text = document.createElement("span");
+      text.textContent = msg.displayText || msg.content;
+      if (msg.displayImage && msg.displayText) text.style.display = "block";
+      bubble.appendChild(text);
+    }
+
     row.appendChild(bubble);
     group.appendChild(row);
     messagesInner.appendChild(group);
@@ -297,7 +296,7 @@
 
     const avatar = document.createElement("div");
     avatar.className = "avatar ai";
-    avatar.textContent = "✦";
+    avatar.innerHTML = CLAUDE_AVATAR;
 
     const bubble = document.createElement("div");
     bubble.className = "bubble ai";
@@ -315,9 +314,7 @@
     if (el) el.remove();
   }
 
-  function scrollToBottom() {
-    messagesArea.scrollTop = messagesArea.scrollHeight;
-  }
+  function scrollToBottom() { messagesArea.scrollTop = messagesArea.scrollHeight; }
 
   // ── Send ──
   async function sendMessage() {
@@ -326,30 +323,40 @@
 
     const currentUsage = getUsage();
     if (currentUsage.count >= DAILY_LIMIT) {
-      messages.push({
-        role: "assistant",
-        content: `Você atingiu o limite de ${DAILY_LIMIT} mensagens por dia. Volte amanhã para continuar conversando!`,
-        isError: true,
-      });
+      messages.push({ role: "assistant", content: `Você atingiu o limite de ${DAILY_LIMIT} mensagens por dia. Volte amanhã!`, isError: true });
       renderMessages();
       return;
     }
 
-    const userMsg = { role: "user", content: trimmed };
-    messages.push(userMsg);
+    // Monta conteúdo com ou sem imagem
+    let apiContent;
+    let displayImage = null;
 
+    if (pendingImage) {
+      apiContent = [];
+      apiContent.push({ type: "image", source: { type: "base64", media_type: pendingImage.mediaType, data: pendingImage.base64 } });
+      if (trimmed) apiContent.push({ type: "text", text: trimmed });
+      displayImage = pendingImage.dataUrl;
+    } else {
+      apiContent = trimmed;
+    }
+
+    const userMsg = { role: "user", content: apiContent, displayImage, displayText: trimmed };
+    messages.push(userMsg);
     welcome.style.display = "none";
     appendMessageToDOM(userMsg);
 
     chatInput.value = "";
     chatInput.style.height = "auto";
+    pendingImage = null;
+    imagePreviewThumb.src = "";
+    imagePreviewWrap.style.display = "none";
     loading = true;
     updateSendBtn();
 
     usage = { date: currentUsage.date, count: currentUsage.count + 1 };
     saveUsage(usage);
     updateHint();
-
     showThinking();
 
     try {
@@ -367,7 +374,6 @@
         content: data.error || data.output || "Sem resposta.",
         isError: !res.ok || !!data.error,
       };
-
       messages.push(aiMsg);
       appendMessageToDOM(aiMsg);
       scrollToBottom();
@@ -382,6 +388,47 @@
       updateSendBtn();
     }
   }
+
+  // ── Image upload ──
+  const imageInput = document.getElementById("imageInput");
+  const attachBtn = document.getElementById("attachBtn");
+  const imagePreviewWrap = document.getElementById("imagePreviewWrap");
+  const imagePreviewThumb = document.getElementById("imagePreviewThumb");
+  const removeImageBtn = document.getElementById("removeImageBtn");
+
+  let pendingImage = null; // { dataUrl, base64, mediaType }
+
+  attachBtn.addEventListener("click", () => imageInput.click());
+
+  imageInput.addEventListener("change", () => {
+    const file = imageInput.files[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Imagem muito grande. Use uma imagem menor que 5MB.");
+      imageInput.value = "";
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const dataUrl = e.target.result;
+      const base64 = dataUrl.split(",")[1];
+      pendingImage = { dataUrl, base64, mediaType: file.type };
+      imagePreviewThumb.src = dataUrl;
+      imagePreviewWrap.style.display = "flex";
+      updateSendBtn();
+    };
+    reader.readAsDataURL(file);
+    imageInput.value = "";
+  });
+
+  removeImageBtn.addEventListener("click", () => {
+    pendingImage = null;
+    imagePreviewThumb.src = "";
+    imagePreviewWrap.style.display = "none";
+    updateSendBtn();
+  });
 
   // ── Init ──
   updateHint();

@@ -34,7 +34,8 @@ def generate():
         "system": (
             "Você é o Matheus Dev IA, um assistente inteligente, amigável e objetivo criado por Matheus. "
             "Responda de forma clara e útil em português, a menos que o usuário escreva em outro idioma. "
-            "Seja direto, mas nunca seco. Quando adequado, use formatação para facilitar a leitura."
+            "Seja direto, mas nunca seco. "
+            "IMPORTANTE: nunca use markdown nas respostas. Não use hashtags, asteriscos, underlines ou qualquer outra formatação markdown. Escreva sempre em texto puro e simples."
         ),
         "messages": [{"role": m["role"], "content": m["content"]} for m in messages],
     }
@@ -48,7 +49,7 @@ def generate():
                 "anthropic-version": "2023-06-01",
             },
             json=payload,
-            timeout=30,
+            timeout=60,
         )
         result = response.json()
 

@@ -1,0 +1,23 @@
+<svg width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fundo preto arredondado -->
+  <rect width="56" height="56" rx="14" fill="#0d0d0d"/>
+
+  <!-- Nós da rede neural -->
+  <circle cx="28" cy="14" r="3" fill="white"/>
+  <circle cx="14" cy="28" r="3" fill="white"/>
+  <circle cx="42" cy="28" r="3" fill="white"/>
+  <circle cx="20" cy="42" r="3" fill="white"/>
+  <circle cx="36" cy="42" r="3" fill="white"/>
+  <circle cx="28" cy="28" r="4" fill="white"/>
+
+  <!-- Conexões -->
+  <line x1="28" y1="14" x2="28" y2="28" stroke="white" stroke-width="1.5" stroke-opacity="0.6"/>
+  <line x1="28" y1="14" x2="14" y2="28" stroke="white" stroke-width="1.5" stroke-opacity="0.6"/>
+  <line x1="28" y1="14" x2="42" y2="28" stroke="white" stroke-width="1.5" stroke-opacity="0.6"/>
+  <line x1="14" y1="28" x2="28" y2="28" stroke="white" stroke-width="1.5" stroke-opacity="0.6"/>
+  <line x1="42" y1="28" x2="28" y2="28" stroke="white" stroke-width="1.5" stroke-opacity="0.6"/>
+  <line x1="14" y1="28" x2="20" y2="42" stroke="white" stroke-width="1.5" stroke-opacity="0.6"/>
+  <line x1="28" y1="28" x2="20" y2="42" stroke="white" stroke-width="1.5" stroke-opacity="0.6"/>
+  <line x1="28" y1="28" x2="36" y2="42" stroke="white" stroke-width="1.5" stroke-opacity="0.6"/>
+  <line x1="42" y1="28" x2="36" y2="42" stroke="white" stroke-width="1.5" stroke-opacity="0.6"/>
+</svg>
