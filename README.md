@@ -1,6 +1,6 @@
 # Resumidor de Vídeos do YouTube
 
-Ferramenta que gera resumos estruturados de vídeos do YouTube usando IA. Cole a URL, receba os pontos principais em segundos.
+Você cola a URL e recebe um resumo estruturado, com pontos principais.
 
 ## Como funciona
 
@@ -26,6 +26,6 @@ Acesse `http://localhost:3000`
 
 ## Stack
 
+- Python
+- API do Claude
 - FastAPI
-- youtube-transcript-api
-- Claude API (Anthropic)
