@@ -1,12 +1,6 @@
-.next
-node_modules
 .env*
 !.env.example
-.turbo
-.vercel
-out
-dist
-npm-debug.log*
-yarn-error.log*
-pnpm-debug.log*
+__pycache__
+*.pyc
 .DS_Store
+venv/

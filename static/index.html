@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resumidor de Vídeos</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #0d1117;
+            color: #c9d1d9;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 60px 16px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 700px;
+        }
+
+        h1 {
+            font-size: 18px;
+            color: #58a6ff;
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            font-size: 13px;
+            color: #484f58;
+            margin-bottom: 32px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        input {
+            flex: 1;
+            background: #161b22;
+            border: 1px solid #30363d;
+            color: #c9d1d9;
+            padding: 10px 14px;
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+        }
+
+        input:focus { border-color: #58a6ff; }
+
+        input::placeholder { color: #484f58; }
+
+        button {
+            background: #21262d;
+            color: #c9d1d9;
+            border: 1px solid #30363d;
+            padding: 10px 20px;
+            font-family: inherit;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        button:hover { background: #30363d; }
+
+        button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .status {
+            font-size: 13px;
+            color: #484f58;
+            margin-bottom: 16px;
+            min-height: 18px;
+        }
+
+        .status.error { color: #f85149; }
+
+        .result {
+            background: #161b22;
+            border: 1px solid #30363d;
+            padding: 20px;
+            white-space: pre-wrap;
+            font-size: 14px;
+            line-height: 1.7;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>> resumidor de vídeos do youtube</h1>
+        <p class="subtitle">cole a url, receba o resumo.</p>
+
+        <div class="input-row">
+            <input type="text" id="url" placeholder="https://youtube.com/watch?v=..." autofocus>
+            <button id="btn" onclick="summarize()">resumir</button>
+        </div>
+
+        <div class="status" id="status"></div>
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        const urlInput = document.getElementById('url');
+        const btn = document.getElementById('btn');
+        const status = document.getElementById('status');
+        const result = document.getElementById('result');
+
+        urlInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') summarize();
+        });
+
+        async function summarize() {
+            const url = urlInput.value.trim();
+            if (!url) return;
+
+            btn.disabled = true;
+            result.style.display = 'none';
+            status.className = 'status';
+            status.textContent = 'extraindo transcrição e gerando resumo...';
+
+            try {
+                const res = await fetch('/api/summarize', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    status.className = 'status error';
+                    status.textContent = data.detail || 'erro ao processar.';
+                    return;
+                }
+
+                status.textContent = 'pronto.';
+                result.textContent = data.summary;
+                result.style.display = 'block';
+            } catch (e) {
+                status.className = 'status error';
+                status.textContent = 'erro de conexão.';
+            } finally {
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>

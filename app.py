@@ -1,43 +1,71 @@
 import os
+import re
+
 import requests
-from flask import Flask, request, jsonify, render_template
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
 from dotenv import load_dotenv
+from youtube_transcript_api import YouTubeTranscriptApi
 
 load_dotenv(".env.local")
 
-app = Flask(__name__)
+app = FastAPI()
 
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 CLAUDE_MODEL = os.getenv("CLAUDE_MODEL", "claude-haiku-4-5-20251001")
-DAILY_LIMIT = 20
 
 
-@app.route("/")
-def index():
-    return render_template("index.html", daily_limit=DAILY_LIMIT)
+def extract_video_id(url: str) -> str | None:
+    patterns = [
+        r"(?:youtube\.com\/watch\?v=)([\w-]{11})",
+        r"(?:youtu\.be\/)([\w-]{11})",
+        r"(?:youtube\.com\/embed\/)([\w-]{11})",
+        r"(?:youtube\.com\/shorts\/)([\w-]{11})",
+    ]
+    for pattern in patterns:
+        match = re.search(pattern, url)
+        if match:
+            return match.group(1)
+    return None
 
 
-@app.route("/api/generate", methods=["POST"])
-def generate():
+ytt_api = YouTubeTranscriptApi()
+
+
+def get_transcript(video_id: str) -> str:
+    try:
+        entries = ytt_api.fetch(video_id, languages=["pt", "pt-BR", "en"])
+        return " ".join(entry.text for entry in entries)
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Não foi possível obter a transcrição do vídeo. Verifique se o vídeo tem legendas disponíveis. Erro: {str(e)}",
+        )
+
+
+def summarize_with_claude(transcript: str) -> str:
     if not ANTHROPIC_API_KEY:
-        return jsonify({"error": "Chave ANTHROPIC_API_KEY não configurada no servidor."}), 500
+        raise HTTPException(status_code=500, detail="ANTHROPIC_API_KEY não configurada.")
 
-    data = request.get_json()
-    messages = data.get("messages") if data else None
-
-    if not messages or not isinstance(messages, list) or len(messages) == 0:
-        return jsonify({"error": "Envie mensagens válidas."}), 400
+    max_chars = 80000
+    if len(transcript) > max_chars:
+        transcript = transcript[:max_chars]
 
     payload = {
         "model": CLAUDE_MODEL,
-        "max_tokens": 1024,
+        "max_tokens": 2048,
         "system": (
-            "Você é o Matheus Dev IA, um assistente inteligente, amigável e objetivo criado por Matheus. "
-            "Responda de forma clara e útil em português, a menos que o usuário escreva em outro idioma. "
-            "Seja direto, mas nunca seco. "
-            "IMPORTANTE: nunca use markdown nas respostas. Não use hashtags, asteriscos, underlines ou qualquer outra formatação markdown. Escreva sempre em texto puro e simples."
+            "Você é um resumidor de vídeos do YouTube. "
+            "Receba a transcrição e retorne um resumo estruturado em português. "
+            "Formato obrigatório:\n"
+            "1. Uma frase com o tema central do vídeo.\n"
+            "2. Lista de pontos principais (máximo 7), cada um com 1-2 frases.\n"
+            "3. Uma conclusão curta com o que o espectador deve levar do vídeo.\n"
+            "Não use markdown. Texto puro. Seja direto e útil."
         ),
-        "messages": [{"role": m["role"], "content": m["content"]} for m in messages],
+        "messages": [{"role": "user", "content": f"Transcrição do vídeo:\n\n{transcript}"}],
     }
 
     try:
@@ -49,23 +77,46 @@ def generate():
                 "anthropic-version": "2023-06-01",
             },
             json=payload,
-            timeout=60,
+            timeout=90,
         )
         result = response.json()
 
         if not response.ok:
             msg = result.get("error", {}).get("message", "Erro ao conectar com o Claude.")
-            return jsonify({"error": msg}), response.status_code
+            raise HTTPException(status_code=response.status_code, detail=msg)
 
-        output = result.get("content", [{}])[0].get("text", "Sem resposta.")
-        return jsonify({"output": output})
+        return result.get("content", [{}])[0].get("text", "Sem resposta.")
 
+    except HTTPException:
+        raise
     except requests.exceptions.Timeout:
-        return jsonify({"error": "Tempo limite excedido. Tente novamente."}), 504
+        raise HTTPException(status_code=504, detail="Tempo limite excedido.")
     except Exception as e:
-        return jsonify({"error": str(e) or "Erro interno no servidor."}), 500
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+class SummarizeRequest(BaseModel):
+    url: str
+
+
+@app.post("/api/summarize")
+def summarize(req: SummarizeRequest):
+    video_id = extract_video_id(req.url)
+    if not video_id:
+        raise HTTPException(status_code=400, detail="URL do YouTube inválida.")
+
+    transcript = get_transcript(video_id)
+    summary = summarize_with_claude(transcript)
+    return {"video_id": video_id, "summary": summary}
+
+
+@app.get("/", response_class=HTMLResponse)
+def index():
+    with open("static/index.html") as f:
+        return f.read()
 
 
 if __name__ == "__main__":
+    import uvicorn
     port = int(os.getenv("PORT", 3000))
-    app.run(debug=False, host="0.0.0.0", port=port)
+    uvicorn.run(app, host="0.0.0.0", port=port)
